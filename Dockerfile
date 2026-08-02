@@ -5,7 +5,7 @@
 # the runtime stage does not.
 
 # --- frontend build --------------------------------------------------------
-FROM node:22-bookworm-slim AS web
+FROM node:25-bookworm-slim AS web
 WORKDIR /src/frontend
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm ci --no-audit --no-fund
@@ -32,7 +32,7 @@ COPY backend/ ./
 RUN go build -o /out/analyst-server ./cmd/server
 
 # --- runtime ---------------------------------------------------------------
-FROM node:22-bookworm-slim AS runtime
+FROM node:25-bookworm-slim AS runtime
 WORKDIR /app
 
 # python3 is present only because notebook Python cells need an interpreter.
