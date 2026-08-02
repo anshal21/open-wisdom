@@ -1,0 +1,61 @@
+id,first_name,last_name,email,age,country,city,traffic_source,created_at
+1,Ada,Lovelace,ada.lovelace1@example.com,35,Australia,Adelaide,Social,2022-02-08 00:00:00
+2,Alan,Pascal,alan.pascal2@example.com,20,Brazil,Recife,Social,2022-04-27 00:00:00
+3,Barbara,Dijkstra,barbara.dijkstra3@example.com,23,Canada,Halifax,Search,2022-10-02 00:00:00
+4,Blaise,Hopper,blaise.hopper4@example.com,32,Germany,Leipzig,Search,2022-07-16 00:00:00
+5,Chandra,Backus,chandra.backus5@example.com,61,India,Pune,Search,2022-08-27 00:00:00
+6,Donald,Mirzakhani,donald.mirzakhani6@example.com,48,United States,Raleigh,Organic,2022-05-17 00:00:00
+7,Edsger,Naur,edsger.naur7@example.com,32,Australia,Brisbane,Search,2022-04-16 00:00:00
+8,Emmy,Hoare,emmy.hoare8@example.com,42,Brazil,Recife,Search,2022-12-27 00:00:00
+9,Frances,Rutkowska,frances.rutkowska9@example.com,69,Canada,Halifax,Search,2022-10-06 00:00:00
+10,Grace,Manna,grace.manna10@example.com,66,Germany,Leipzig,Email,2022-06-07 00:00:00
+11,Haskell,Liskov,haskell.liskov11@example.com,29,India,Kochi,Social,2022-01-20 00:00:00
+12,Ingrid,Knuth,ingrid.knuth12@example.com,21,United States,Omaha,Email,2022-12-21 00:00:00
+13,John,Allen,john.allen13@example.com,34,Australia,Melbourne,Email,2022-04-30 00:00:00
+14,Katherine,Daubechies,katherine.daubechies14@example.com,50,Brazil,Recife,Social,2022-11-10 00:00:00
+15,Leslie,Lamport,leslie.lamport15@example.com,55,Canada,Winnipeg,Email,2022-06-13 00:00:00
+16,Maryam,Ladyzhenskaya,maryam.ladyzhenskaya16@example.com,25,Germany,Stuttgart,Search,2022-11-28 00:00:00
+17,Niklaus,Kovalevskaya,niklaus.kovalevskaya17@example.com,33,India,Nagpur,Email,2022-10-11 00:00:00
+18,Olga,Cerf,olga.cerf18@example.com,55,United States,Raleigh,Organic,2022-06-16 00:00:00
+19,Peter,Matsumoto,peter.matsumoto19@example.com,64,Australia,Adelaide,Search,2022-10-18 00:00:00
+20,Radia,Turing,radia.turing20@example.com,48,Brazil,Belo Horizonte,Organic,2022-12-27 00:00:00
+21,Sofya,Kaimal,sofya.kaimal21@example.com,43,Canada,Calgary,Email,2022-11-15 00:00:00
+22,Tony,Noether,tony.noether22@example.com,23,Germany,Dortmund,Search,2022-01-20 00:00:00
+23,Ursula,Curry,ursula.curry23@example.com,68,India,Pune,Search,2022-08-01 00:00:00
+24,Vint,Johnson,vint.johnson24@example.com,48,United States,Boise,Organic,2022-09-26 00:00:00
+25,Wanda,Wirth,wanda.wirth25@example.com,43,Australia,Melbourne,Organic,2022-12-12 00:00:00
+26,Xiaowei,Perlman,xiaowei.perlman26@example.com,41,Brazil,Recife,Email,2022-06-13 00:00:00
+27,Yukihiro,Franklin,yukihiro.franklin27@example.com,44,Canada,Calgary,Social,2022-12-23 00:00:00
+28,Zohar,Chen,zohar.chen28@example.com,68,Germany,Leipzig,Search,2022-08-18 00:00:00
+29,Ada,Lovelace,ada.lovelace29@example.com,67,India,Kochi,Social,2021-12-12 00:00:00
+30,Alan,Pascal,alan.pascal30@example.com,24,United States,Boise,Social,2022-08-24 00:00:00
+31,Barbara,Dijkstra,barbara.dijkstra31@example.com,39,Australia,Adelaide,Organic,2022-11-10 00:00:00
+32,Blaise,Hopper,blaise.hopper32@example.com,26,Brazil,Curitiba,Email,2022-06-26 00:00:00
+33,Chandra,Backus,chandra.backus33@example.com,42,Canada,Winnipeg,Social,2022-11-29 00:00:00
+34,Donald,Mirzakhani,donald.mirzakhani34@example.com,45,Germany,Dortmund,Organic,2022-12-06 00:00:00
+35,Edsger,Naur,edsger.naur35@example.com,32,India,Nagpur,Organic,2021-12-16 00:00:00
+36,Emmy,Hoare,emmy.hoare36@example.com,59,United States,Omaha,Email,2021-12-20 00:00:00
+37,Frances,Rutkowska,frances.rutkowska37@example.com,41,Australia,Brisbane,Organic,2022-10-06 00:00:00
+38,Grace,Manna,grace.manna38@example.com,20,Brazil,Belo Horizonte,Social,2022-11-07 00:00:00
+39,Haskell,Liskov,haskell.liskov39@example.com,24,Canada,Winnipeg,Social,2022-07-30 00:00:00
+40,Ingrid,Knuth,ingrid.knuth40@example.com,62,Germany,Stuttgart,Search,2022-04-08 00:00:00
+41,John,Allen,john.allen41@example.com,42,India,Kochi,Organic,2022-02-27 00:00:00
+42,Katherine,Daubechies,katherine.daubechies42@example.com,45,United States,Raleigh,Email,2022-11-25 00:00:00
+43,Leslie,Lamport,leslie.lamport43@example.com,35,Australia,Adelaide,Organic,2022-04-17 00:00:00
+44,Maryam,Ladyzhenskaya,maryam.ladyzhenskaya44@example.com,50,Brazil,Belo Horizonte,Email,2021-12-01 00:00:00
+45,Niklaus,Kovalevskaya,niklaus.kovalevskaya45@example.com,43,Canada,Calgary,Social,2022-04-05 00:00:00
+46,Olga,Cerf,olga.cerf46@example.com,26,Germany,Leipzig,Social,2022-11-04 00:00:00
+47,Peter,Matsumoto,peter.matsumoto47@example.com,51,India,Pune,Search,2022-12-21 00:00:00
+48,Radia,Turing,radia.turing48@example.com,69,United States,Raleigh,Search,2022-11-01 00:00:00
+49,Sofya,Kaimal,sofya.kaimal49@example.com,20,Australia,Adelaide,Organic,2022-09-30 00:00:00
+50,Tony,Noether,tony.noether50@example.com,66,Brazil,Curitiba,Social,2022-01-30 00:00:00
+51,Ursula,Curry,ursula.curry51@example.com,55,Canada,Calgary,Email,2022-11-03 00:00:00
+52,Vint,Johnson,vint.johnson52@example.com,59,Germany,Dortmund,Search,2022-09-17 00:00:00
+53,Wanda,Wirth,wanda.wirth53@example.com,64,India,Nagpur,Organic,2022-06-03 00:00:00
+54,Xiaowei,Perlman,xiaowei.perlman54@example.com,39,United States,Omaha,Search,2022-04-14 00:00:00
+55,Yukihiro,Franklin,yukihiro.franklin55@example.com,51,Australia,Brisbane,Social,2022-09-02 00:00:00
+56,Zohar,Chen,zohar.chen56@example.com,59,Brazil,Belo Horizonte,Email,2022-10-21 00:00:00
+57,Ada,Lovelace,ada.lovelace57@example.com,67,Canada,Halifax,Search,2022-04-14 00:00:00
+58,Alan,Pascal,alan.pascal58@example.com,65,Germany,Dortmund,Social,2022-02-01 00:00:00
+59,Barbara,Dijkstra,barbara.dijkstra59@example.com,26,India,Pune,Organic,2022-10-16 00:00:00
+60,Blaise,Hopper,blaise.hopper60@example.com,65,United States,Raleigh,Organic,2022-07-01 00:00:00

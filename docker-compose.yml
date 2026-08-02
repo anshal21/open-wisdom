@@ -1,0 +1,68 @@
+# Analyst — one command to a working instance.
+#
+#   # your own data (the point of the product)
+#   ANALYST_DATA_DIR=~/warehouses ANALYST_WAREHOUSE_FILE=sales.duckdb docker compose up
+#
+#   # or generate a sample warehouse first, if you want something to poke at
+#   ./scripts/setup-sample-data.sh && docker compose up
+#
+#   # or neither — it starts fine with no data and asks you to add a source
+#   docker compose up
+#
+# Defaults are deliberately the safe ones: the deterministic mock model provider
+# (no API key, no network, no cost), a read-only mount for your data, and
+# notebook Python execution disabled. Everything you would need to make this
+# less safe requires you to say so explicitly.
+
+services:
+  analyst:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: analyst:local
+    ports:
+      # Only the web app is published. The API stays on the container network:
+      # it has no authentication (see README, "Security posture"), so exposing
+      # it on the host by default would be handing out a shell to your data.
+      - "3000:3000"
+    environment:
+      # `mock` runs the whole product deterministically with no model calls.
+      # Set to `claude-cli` or `anthropic` for real answers.
+      ANALYST_LLM: "${ANALYST_LLM:-mock}"
+      # Only read when ANALYST_LLM=anthropic. Never baked into the image.
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      # Which file inside the mounted directory to open. If it is not there the
+      # container still starts, with no source — see docker/entrypoint.sh.
+      ANALYST_WAREHOUSE: "/app/warehouse/${ANALYST_WAREHOUSE_FILE:-analyst-sample.duckdb}"
+    volumes:
+      # The answer ledger survives `docker compose down`. Delete the volume to
+      # start clean.
+      - analyst-data:/app/data
+      # Your data, read-only.
+      #
+      # A DIRECTORY is mounted rather than the database file itself, and that is
+      # load-bearing: Docker silently creates a missing bind-mount source, and
+      # for a file path it creates a DIRECTORY where the file should be. Pointing
+      # this at a warehouse you have not built yet would therefore produce an
+      # empty directory named `sales.duckdb` and an error nobody can decode.
+      # Mounting the parent makes a missing file just a missing file.
+      #
+      # `:ro` because Analyst only ever reads your warehouse. The read-only
+      # DuckDB connection already enforces that; this enforces it a second time,
+      # at a boundary the process cannot talk its way past.
+      - "${ANALYST_DATA_DIR:-./sample}:/app/warehouse:ro"
+    healthcheck:
+      # BOTH processes, not just the web app. Probing only :3000 meant the API
+      # could be dead while the container reported healthy — and since the UI
+      # proxies through Next, a visitor would see a served page that answers
+      # nothing. A health check that can be green while the product is broken
+      # is worse than none.
+      test: ["CMD-SHELL", "node -e \"Promise.all([fetch('http://127.0.0.1:3000'),fetch('http://127.0.0.1:8080/api/v1/health')]).then(rs=>process.exit(rs.every(r=>r.ok)?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  analyst-data:

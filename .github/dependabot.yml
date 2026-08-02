@@ -1,0 +1,46 @@
+# Dependency updates.
+#
+# Weekly rather than daily, and grouped, because this is a small project: a
+# stream of individual PRs nobody merges is worse signal than a single one that
+# gets looked at. Security updates are ungrouped and arrive as they are found.
+
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /backend
+    schedule:
+      interval: weekly
+    groups:
+      go-dependencies:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    groups:
+      # Next/React move together; splitting them produces PRs that cannot pass CI.
+      next:
+        patterns: ["next", "react", "react-dom", "@types/react*", "eslint-config-next"]
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+      production:
+        dependency-type: production
+        update-types: [minor, patch]
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly

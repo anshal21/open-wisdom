@@ -1,0 +1,195 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A PR should never be able to make the tree less publishable than it was.
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: Build
+        working-directory: backend
+        # DuckDB is a cgo binding with vendored natives; CGO_ENABLED=0 cannot build it.
+        env:
+          CGO_ENABLED: "1"
+        run: go build ./...
+
+      - name: Vet
+        working-directory: backend
+        run: go vet ./...
+
+      - name: Test
+        working-directory: backend
+        env:
+          CGO_ENABLED: "1"
+          # ANALYST_TEST_WAREHOUSE is deliberately NOT set.
+          #
+          # The suites build their fixture from CSVs embedded in the test binary
+          # (backend/internal/fixture), so CI runs exactly what a contributor
+          # runs on a bare clone with nothing fetched and nothing configured. If
+          # this job needed an env var pointing at a downloaded file to be green,
+          # a green job would stop telling us anything about anyone else's
+          # machine — which is the failure this repository already shipped once.
+        run: go test ./... -v 2>&1 | tee /tmp/go-test.log
+
+      - name: No silent skips
+        # A suite that prints `ok` while executing nothing is worse than no
+        # suite. This repository shipped exactly that for months: three test
+        # files hardcoded an absolute path and skipped when it was missing, so
+        # `go test ./...` was green on every machine but one.
+        #
+        # Exactly one skip is allowed, and it must say so out loud:
+        # [needs-real-provider] marks a test asserting MODEL JUDGEMENT (does the
+        # narrative name its definition? does alias detection find split
+        # entities?). The deterministic mock cannot satisfy those by
+        # construction, and CI must not spend money to find out. Model quality
+        # is measured by the conformance suite instead, where the score is the
+        # point. Every other skip fails the build.
+        run: |
+          unexplained=$(grep -E '^\s*--- SKIP' -A1 /tmp/go-test.log \
+            | grep -v 'needs-real-provider' \
+            | grep -E '^\s*--- SKIP' || true)
+          if [ -n "$unexplained" ]; then
+            echo "$unexplained"
+            echo "::error::Tests were skipped without the [needs-real-provider] marker. A skip means the suite did not run — fix the fixture or the environment."
+            exit 1
+          fi
+          echo "no unexplained skips"
+
+      - name: Fixture is reproducible
+        # The committed CSVs are the ground truth the provider conformance suite
+        # scores models against, and internal/fixture/gen claims to reproduce
+        # them byte for byte from a fixed seed. An unverified claim of
+        # determinism is worth nothing: if the generator drifted, the CSVs and
+        # the code that supposedly produced them would quietly diverge, and the
+        # published score would be traceable to nothing.
+        working-directory: backend
+        env:
+          CGO_ENABLED: "1"
+        run: |
+          go run ./cmd/gensample -scale tiny -csv internal/fixture/testdata
+          if ! git diff --exit-code -- internal/fixture/testdata; then
+            echo "::error::Regenerating the fixture changed it. Either the generator drifted, or the CSVs were hand-edited. Re-derive the ground truths in internal/fixture/truth.go and commit both."
+            exit 1
+          fi
+          echo "fixture regenerates identically"
+
+      - name: Sample data script works
+        # It is optional, so nobody runs it locally, so it is exactly the kind of
+        # thing that rots. It is also the first command in the README for anyone
+        # who wants to look around before connecting real data.
+        env:
+          CGO_ENABLED: "1"
+        run: |
+          ./scripts/setup-sample-data.sh /tmp/sample.duckdb
+          test -s /tmp/sample.duckdb
+          echo "sample warehouse built"
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npx eslint src
+      - name: Unit tests
+        run: npx vitest run
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+
+  hygiene:
+    name: Publishability
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: No absolute developer paths
+        # These made three suites silently skip everywhere but one machine.
+        run: |
+          if grep -rn "/Users/\|/home/[a-z]" --include="*.go" --include="*.ts" --include="*.tsx" \
+               backend frontend/src docs 2>/dev/null; then
+            echo "::error::Absolute developer path committed. Use ANALYST_TEST_WAREHOUSE or a repo-relative path."
+            exit 1
+          fi
+          echo "clean"
+
+      - name: No committed secrets or databases
+        run: |
+          if git ls-files | grep -E '\.(db|sqlite3?|duckdb)$'; then
+            echo "::error::A database file is tracked. The store holds every question asked and every source DSN."
+            exit 1
+          fi
+          if git ls-files | grep -E '(^|/)\.env($|\.)' ; then
+            echo "::error::An .env file is tracked."
+            exit 1
+          fi
+          echo "clean"
+
+      - name: Required project files exist
+        run: |
+          missing=0
+          for f in LICENSE NOTICE README.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md ARCHITECTURE.md; do
+            [ -f "$f" ] || { echo "::error::$f is missing"; missing=1; }
+          done
+          exit $missing
+
+  docker:
+    name: Container builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Build image
+        # The quickstart in the README is `docker compose up`. If this breaks,
+        # the project's first-run experience is broken.
+        run: docker build -t analyst:ci .
+
+  sbom:
+    name: SBOM
+    runs-on: ubuntu-latest
+    # A software bill of materials for anyone whose procurement asks for one,
+    # and for us: it is the fastest way to answer "are we affected by X" without
+    # reading two lockfiles. Attached to every run; publish it on releases.
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Generate
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0
+        with:
+          path: .
+          format: cyclonedx-json
+          artifact-name: analyst-sbom.cyclonedx.json
+          output-file: analyst-sbom.cyclonedx.json
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sbom
+          path: analyst-sbom.cyclonedx.json

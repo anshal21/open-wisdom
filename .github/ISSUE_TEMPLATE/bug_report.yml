@@ -1,0 +1,70 @@
+name: Bug report
+description: Something behaved differently from what it claimed.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Two fields below are unusual and are the ones we most need: the **seal
+        state** and the **model provider**. Almost every report about a wrong
+        answer turns out to depend on which of the two produced it, and asking
+        afterwards costs a round trip.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what you got.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: seal
+    attributes:
+      label: Seal on the answer
+      description: Shown on the answer card. Pick "not applicable" if the bug is not about an answer.
+      options:
+        - verified
+        - qualified
+        - unverified
+        - contested
+        - refused
+        - not applicable
+    validations:
+      required: true
+
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Model provider
+      options:
+        - mock
+        - claude-cli
+        - anthropic
+        - other (say which below)
+    validations:
+      required: true
+
+  - type: input
+    id: connector
+    attributes:
+      label: Data source
+      description: Connector and roughly what the data looks like. Never paste credentials.
+      placeholder: duckdb, ~40 tables, one fact table of ~5M rows
+
+  - type: textarea
+    id: sql
+    attributes:
+      label: The SQL, if the report is about a wrong number
+      description: >
+        From the answer's Provenance tab. Redact freely — table and column
+        shapes matter, your data does not.
+      render: sql
+
+  - type: textarea
+    id: env
+    attributes:
+      label: Version and environment
+      description: Commit or release, OS, and whether you run via Docker or directly.
+    validations:
+      required: true

@@ -1,0 +1,41 @@
+id,name,brand,category,department,cost,retail_price,distribution_center_id
+1,Alder & Vane Anorak,Alder & Vane,Outerwear,Womenswear,83.44,165.21,2
+2,Bright Meridian Slim Jean,Bright Meridian,Denim,Womenswear,36.74,95.30,3
+3,Corvid Supply Cardigan,Corvid Supply,Knitwear,Womenswear,84.15,157.52,4
+4,Dunlin Goods Poplin Dress,Dunlin Goods,Dresses,Womenswear,64.73,163.73,2
+5,Ember Row Chelsea Boot,Ember Row,Footwear,Womenswear,37.59,71.67,4
+6,Fathom Mills Anorak,Fathom Mills,Outerwear,Menswear,55.06,135.25,1
+7,Grayling Slim Jean,Grayling,Denim,Menswear,77.24,176.43,2
+8,Halcyon Standard Oxford Shirt,Halcyon Standard,Shirts,Menswear,7.50,12.57,2
+9,Alder & Vane Blazer,Alder & Vane,Suits,Menswear,22.17,52.47,4
+10,Bright Meridian Chelsea Boot,Bright Meridian,Footwear,Menswear,52.77,123.96,2
+11,Corvid Supply Anorak,Corvid Supply,Outerwear,Kids,58.84,159.45,1
+12,Dunlin Goods Slim Jean,Dunlin Goods,Denim,Kids,6.47,17.19,1
+13,Ember Row Pyjama Set,Ember Row,Sleepwear,Kids,85.80,172.28,4
+14,Fathom Mills Bomber,Fathom Mills,Outerwear,Womenswear,16.97,32.68,2
+15,Grayling Straight Jean,Grayling,Denim,Womenswear,15.20,41.30,1
+16,Halcyon Standard Crewneck,Halcyon Standard,Knitwear,Womenswear,31.80,61.77,3
+17,Alder & Vane Shift Dress,Alder & Vane,Dresses,Womenswear,12.45,22.40,2
+18,Bright Meridian Derby Shoe,Bright Meridian,Footwear,Womenswear,61.15,102.80,2
+19,Corvid Supply Bomber,Corvid Supply,Outerwear,Menswear,45.12,104.87,1
+20,Dunlin Goods Straight Jean,Dunlin Goods,Denim,Menswear,45.18,91.95,4
+21,Ember Row Henley,Ember Row,Shirts,Menswear,54.69,115.04,2
+22,Fathom Mills Two-Piece Suit,Fathom Mills,Suits,Menswear,68.43,156.85,2
+23,Grayling Derby Shoe,Grayling,Footwear,Menswear,30.32,50.70,2
+24,Halcyon Standard Bomber,Halcyon Standard,Outerwear,Kids,76.08,146.55,2
+25,Alder & Vane Straight Jean,Alder & Vane,Denim,Kids,64.86,179.97,2
+26,Bright Meridian Sleep Shirt,Bright Meridian,Sleepwear,Kids,30.72,55.44,3
+27,Corvid Supply Chore Coat,Corvid Supply,Outerwear,Womenswear,67.37,138.32,2
+28,Dunlin Goods Wide Jean,Dunlin Goods,Denim,Womenswear,38.05,83.23,3
+29,Ember Row Mockneck,Ember Row,Knitwear,Womenswear,44.39,75.09,4
+30,Fathom Mills Wrap Dress,Fathom Mills,Dresses,Womenswear,55.51,149.34,2
+31,Grayling Loafer,Grayling,Footwear,Womenswear,16.97,38.53,3
+32,Halcyon Standard Chore Coat,Halcyon Standard,Outerwear,Menswear,31.20,63.40,1
+33,Alder & Vane Wide Jean,Alder & Vane,Denim,Menswear,60.29,140.19,1
+34,Bright Meridian Flannel Shirt,Bright Meridian,Shirts,Menswear,61.54,136.35,1
+35,Corvid Supply Waistcoat,Corvid Supply,Suits,Menswear,76.97,129.77,1
+36,Dunlin Goods Loafer,Dunlin Goods,Footwear,Menswear,52.44,99.45,3
+37,Ember Row Chore Coat,Ember Row,Outerwear,Kids,49.32,109.35,1
+38,Fathom Mills Wide Jean,Fathom Mills,Denim,Kids,60.97,172.52,3
+39,Grayling Robe,Grayling,Sleepwear,Kids,58.97,153.05,4
+40,Halcyon Standard Field Jacket,Halcyon Standard,Outerwear,Womenswear,74.93,165.05,2

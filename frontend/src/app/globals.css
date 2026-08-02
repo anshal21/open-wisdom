@@ -1,0 +1,546 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Mode variables. design-system.md §2.3 — the single place modes are swapped.
+   Components never reference these directly; they use the @theme tokens below.
+--------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  --c-surface-canvas: #f7f8fa;
+  --c-surface-1: #ffffff;
+  --c-surface-2: #f1f3f6;
+  --c-surface-3: #ffffff;
+  --c-surface-4: #ffffff;
+  --c-surface-inset: #f7f8fa;
+  --c-surface-inverse: #14171b;
+
+  --c-text-primary: #14171b;
+  --c-text-secondary: #4b5462;
+  --c-text-tertiary: #667085;
+  --c-text-disabled: #98a2b3;
+  --c-text-inverse: #ffffff;
+  --c-text-accent: #4338ca;
+
+  --c-border-subtle: #edf0f4;
+  --c-border-default: #e2e6ec;
+  --c-border-strong: #d0d6de;
+  --c-border-hover: #b8c0cc;
+  --c-border-accent: #4f46e5;
+
+  --c-accent-solid: #4f46e5;
+  --c-accent-solid-hover: #4338ca;
+  --c-accent-tint: #eef0ff;
+  --c-accent-tint-border: #c9cbfb;
+
+  --c-verified-fg: #067647;
+  --c-verified-bg: #ecfdf3;
+  --c-verified-border: #abefc6;
+  --c-qualified-fg: #b54708;
+  --c-qualified-bg: #fffaeb;
+  --c-qualified-border: #fedf89;
+  --c-contested-fg: #b42318;
+  --c-contested-bg: #fef3f2;
+  --c-contested-border: #fecdca;
+  --c-unverified-fg: #4b5462;
+  --c-unverified-bg: #f1f3f6;
+  --c-unverified-border: #d0d5dd;
+
+  --c-overlay-hover: rgb(20 23 27 / 0.04);
+  --c-overlay-press: rgb(20 23 27 / 0.08);
+  --c-overlay-selected: rgb(79 70 229 / 0.08);
+  --c-overlay-scrim: rgb(11 13 16 / 0.4);
+
+  /* charts — data-viz.md §2. Never computed by inverting the other mode. */
+  --viz-1: #5b5bd6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+  --viz-4: #eda100;
+  --viz-5: #e87ba4;
+  --viz-6: #008300;
+  --viz-7: #2a78d6;
+  --viz-8: #e34948;
+
+  --viz-surface: #ffffff;
+  --viz-ink-primary: #14171b;
+  --viz-ink-secondary: #4b5462;
+  --viz-ink-muted: #667085;
+  --viz-grid: #edf0f4;
+  --viz-baseline: #d0d5dd;
+  --viz-annotation: #98a2b3;
+  --viz-band: rgb(102 112 133 / 0.08);
+
+  --viz-status-verified: #079455;
+  --viz-status-qualified: #dc6803;
+  --viz-status-contested: #d92d20;
+  --viz-status-unverified: #7a8598;
+
+  --viz-seq-100: #e0e0fb;
+  --viz-seq-200: #bdbef7;
+  --viz-seq-300: #9394f1;
+  --viz-seq-400: #6b6ce8;
+  --viz-seq-500: #4e4ec0;
+
+  --ds-shadow-raised: 0 1px 2px rgb(16 24 40 / 0.06);
+  --ds-shadow-overlay: 0 8px 24px -6px rgb(16 24 40 / 0.12), 0 2px 6px -2px rgb(16 24 40 / 0.06);
+  --ds-shadow-modal: 0 24px 48px -12px rgb(16 24 40 / 0.18);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --c-surface-canvas: #0b0d10;
+  --c-surface-1: #121519;
+  --c-surface-2: #181c21;
+  --c-surface-3: #1e232a;
+  --c-surface-4: #242a32;
+  --c-surface-inset: #08090b;
+  --c-surface-inverse: #f2f4f7;
+
+  --c-text-primary: #f2f4f7;
+  --c-text-secondary: #a8b0bd;
+  --c-text-tertiary: #7a828f;
+  --c-text-disabled: #545c69;
+  --c-text-inverse: #0b0d10;
+  --c-text-accent: #a5a6ff;
+
+  --c-border-subtle: rgb(255 255 255 / 0.06);
+  --c-border-default: rgb(255 255 255 / 0.1);
+  --c-border-strong: rgb(255 255 255 / 0.16);
+  --c-border-hover: rgb(255 255 255 / 0.24);
+  --c-border-accent: #7c7ff5;
+
+  --c-accent-solid: #5b5bd6;
+  --c-accent-solid-hover: #6b6ce8;
+  --c-accent-tint: rgb(124 127 245 / 0.14);
+  --c-accent-tint-border: rgb(124 127 245 / 0.32);
+
+  --c-verified-fg: #3dd68c;
+  --c-verified-bg: rgb(61 214 140 / 0.12);
+  --c-verified-border: rgb(61 214 140 / 0.28);
+  --c-qualified-fg: #fdb022;
+  --c-qualified-bg: rgb(253 176 34 / 0.12);
+  --c-qualified-border: rgb(253 176 34 / 0.28);
+  --c-contested-fg: #f97066;
+  --c-contested-bg: rgb(249 112 102 / 0.12);
+  --c-contested-border: rgb(249 112 102 / 0.28);
+  --c-unverified-fg: #a8b0bd;
+  --c-unverified-bg: rgb(255 255 255 / 0.05);
+  --c-unverified-border: rgb(255 255 255 / 0.16);
+
+  --c-overlay-hover: rgb(255 255 255 / 0.05);
+  --c-overlay-press: rgb(255 255 255 / 0.09);
+  --c-overlay-selected: rgb(124 127 245 / 0.14);
+  --c-overlay-scrim: rgb(0 0 0 / 0.6);
+
+  --viz-1: #7c7ff5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+  --viz-4: #c98500;
+  --viz-5: #d55181;
+  --viz-6: #008300;
+  --viz-7: #3987e5;
+  --viz-8: #e66767;
+
+  --viz-surface: #121519;
+  --viz-ink-primary: #f2f4f7;
+  --viz-ink-secondary: #a8b0bd;
+  --viz-ink-muted: #7a828f;
+  --viz-grid: rgb(255 255 255 / 0.06);
+  --viz-baseline: rgb(255 255 255 / 0.16);
+  --viz-annotation: #545c69;
+  --viz-band: rgb(255 255 255 / 0.05);
+
+  --viz-status-verified: #3dd68c;
+  --viz-status-qualified: #fdb022;
+  --viz-status-contested: #f97066;
+  --viz-status-unverified: #7a828f;
+
+  --viz-seq-100: #e0e0fb;
+  --viz-seq-200: #bdbef7;
+  --viz-seq-300: #9394f1;
+  --viz-seq-400: #6b6ce8;
+  --viz-seq-500: #4e4ec0;
+
+  --ds-shadow-raised: none;
+  --ds-shadow-overlay: 0 8px 24px -6px rgb(0 0 0 / 0.6);
+  --ds-shadow-modal: 0 24px 48px -12px rgb(0 0 0 / 0.7);
+}
+
+@theme inline {
+  --color-surface-canvas: var(--c-surface-canvas);
+  --color-surface-1: var(--c-surface-1);
+  --color-surface-2: var(--c-surface-2);
+  --color-surface-3: var(--c-surface-3);
+  --color-surface-4: var(--c-surface-4);
+  --color-surface-inset: var(--c-surface-inset);
+  --color-surface-inverse: var(--c-surface-inverse);
+
+  --color-primary: var(--c-text-primary);
+  --color-secondary: var(--c-text-secondary);
+  --color-tertiary: var(--c-text-tertiary);
+  --color-disabled: var(--c-text-disabled);
+  --color-inverse: var(--c-text-inverse);
+  --color-accent: var(--c-text-accent);
+  --color-accent-solid: var(--c-accent-solid);
+  --color-accent-solid-hover: var(--c-accent-solid-hover);
+  --color-accent-tint: var(--c-accent-tint);
+  --color-accent-tint-border: var(--c-accent-tint-border);
+
+  --color-border-subtle: var(--c-border-subtle);
+  --color-border-default: var(--c-border-default);
+  --color-border-strong: var(--c-border-strong);
+  --color-border-hover: var(--c-border-hover);
+  --color-border-accent: var(--c-border-accent);
+
+  --color-verified: var(--c-verified-fg);
+  --color-verified-bg: var(--c-verified-bg);
+  --color-verified-border: var(--c-verified-border);
+  --color-qualified: var(--c-qualified-fg);
+  --color-qualified-bg: var(--c-qualified-bg);
+  --color-qualified-border: var(--c-qualified-border);
+  --color-contested: var(--c-contested-fg);
+  --color-contested-bg: var(--c-contested-bg);
+  --color-contested-border: var(--c-contested-border);
+  --color-unverified: var(--c-unverified-fg);
+  --color-unverified-bg: var(--c-unverified-bg);
+  --color-unverified-border: var(--c-unverified-border);
+
+  --color-overlay-hover: var(--c-overlay-hover);
+  --color-overlay-press: var(--c-overlay-press);
+  --color-overlay-selected: var(--c-overlay-selected);
+  --color-overlay-scrim: var(--c-overlay-scrim);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", "Menlo", monospace;
+
+  --text-hero: 44px;
+  --text-hero--line-height: 48px;
+  --text-hero--font-weight: 600;
+  --text-hero--letter-spacing: -0.03em;
+  --text-hero-sm: 30px;
+  --text-hero-sm--line-height: 36px;
+  --text-hero-sm--font-weight: 600;
+  --text-hero-sm--letter-spacing: -0.02em;
+  --text-title-lg: 22px;
+  --text-title-lg--line-height: 30px;
+  --text-title-lg--font-weight: 600;
+  --text-title-lg--letter-spacing: -0.02em;
+  --text-title: 17px;
+  --text-title--line-height: 24px;
+  --text-title--font-weight: 600;
+  --text-title--letter-spacing: -0.01em;
+  --text-subtitle: 14px;
+  --text-subtitle--line-height: 20px;
+  --text-subtitle--font-weight: 600;
+  --text-subtitle--letter-spacing: -0.005em;
+  --text-body: 14px;
+  --text-body--line-height: 22px;
+  --text-ui: 13px;
+  --text-ui--line-height: 18px;
+  --text-ui-sm: 12px;
+  --text-ui-sm--line-height: 16px;
+  --text-label: 11px;
+  --text-label--line-height: 14px;
+  --text-label--font-weight: 600;
+  --text-label--letter-spacing: 0.06em;
+  --text-mono: 12.5px;
+  --text-mono--line-height: 20px;
+  --text-mono-sm: 11.5px;
+  --text-mono-sm--line-height: 18px;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-standard: cubic-bezier(0.3, 0, 0.2, 1);
+
+  --shadow-raised: var(--ds-shadow-raised);
+  --shadow-overlay: var(--ds-shadow-overlay);
+  --shadow-modal: var(--ds-shadow-modal);
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+--------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--c-surface-canvas);
+  color: var(--c-text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 18px;
+  font-feature-settings: "cv11" 1, "ss01" 1;
+  font-variant-numeric: proportional-nums;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.tabular,
+td,
+th,
+.axis-tick {
+  font-variant-numeric: tabular-nums;
+}
+
+code,
+pre,
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: "zero" 1;
+}
+
+/* Focus ring — identical on every interactive element. §8 */
+:focus-visible {
+  outline: 2px solid var(--c-border-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--c-overlay-selected);
+}
+
+/* Scrollbars: thin, neutral, never a colored accent. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-border-strong) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: var(--c-border-strong);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--c-border-hover);
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Motion — hard ceiling 220ms. No springs. §7
+--------------------------------------------------------------------------- */
+
+@keyframes ds-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes ds-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ds-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ds-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ds-accent-pulse {
+  0%,
+  100% {
+    border-color: var(--c-border-subtle);
+  }
+  45% {
+    border-color: var(--c-border-accent);
+  }
+}
+
+@keyframes ds-tint-settle {
+  0% {
+    background-color: var(--c-qualified-bg);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes ds-draw {
+  from {
+    stroke-dashoffset: var(--draw-length, 1000);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.ds-skeleton {
+  background-color: var(--c-surface-2);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--c-overlay-hover) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: ds-shimmer 1.4s linear infinite;
+  border-radius: var(--radius-sm);
+}
+
+.ds-spin {
+  animation: ds-spin 900ms linear infinite;
+  transform-origin: center;
+}
+
+.ds-enter {
+  animation: ds-enter 180ms var(--ease-out) both;
+}
+
+.ds-fade {
+  animation: ds-fade 140ms var(--ease-out) both;
+}
+
+.ds-pulse-accent {
+  animation: ds-accent-pulse 220ms var(--ease-standard) 1;
+}
+
+.ds-tint-settle {
+  animation: ds-tint-settle 800ms var(--ease-out) both;
+}
+
+.ds-draw {
+  stroke-dasharray: var(--draw-length, 1000);
+  animation: ds-draw 180ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+  .ds-skeleton {
+    animation: none;
+    background-image: none;
+  }
+  .ds-spin {
+    animation: none;
+  }
+  .ds-draw {
+    stroke-dasharray: none;
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Utilities that carry product meaning
+--------------------------------------------------------------------------- */
+
+/* The only gradient in the system: the composer scrim. §11.13 */
+.composer-scrim {
+  background: linear-gradient(to bottom, transparent, var(--c-surface-canvas) 62%);
+}
+
+.prose-measure {
+  max-width: 68ch;
+}
+
+/* 45° hatch — the load-bearing "unverified" device. Survives greyscale. */
+.hatch-unverified {
+  background-image: repeating-linear-gradient(
+    45deg,
+    currentColor 0px,
+    currentColor 1px,
+    transparent 1px,
+    transparent 5px
+  );
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Dashboard canvas — overrides for react-grid-layout's vendor CSS.
+
+   The library ships `background: red` on the drop placeholder. On this
+   product's one surface where red is load-bearing semantics (a derivation
+   disagreed), a red rectangle following the cursor is the worst possible
+   accident. Everything here is edit-mode chrome: it must read as scaffolding,
+   never as data.
+--------------------------------------------------------------------------- */
+.react-grid-item.react-grid-placeholder {
+  background: var(--c-accent-tint) !important;
+  border: 1px dashed var(--c-accent-tint-border);
+  border-radius: 0.5rem;
+  opacity: 1;
+  transition-duration: 100ms;
+}
+
+/* The tile being dragged lifts above its neighbours. */
+.react-grid-item.react-draggable-dragging {
+  z-index: 50;
+  box-shadow: var(--ds-shadow-overlay);
+  transform-origin: center;
+  cursor: grabbing;
+}
+
+.react-grid-item.resizing {
+  z-index: 50;
+  opacity: 0.9;
+}
+
+/* Resize handles: invisible until the tile is hovered, then a quiet corner
+   mark. The vendor default is a background-image sprite that ignores theme. */
+.react-grid-item > .react-resizable-handle {
+  opacity: 0;
+  transition: opacity 100ms ease;
+}
+.react-grid-item:hover > .react-resizable-handle,
+.react-grid-item:focus-within > .react-resizable-handle {
+  opacity: 1;
+}
+.react-grid-item > .react-resizable-handle::after {
+  border-right-color: var(--c-text-tertiary);
+  border-bottom-color: var(--c-text-tertiary);
+}

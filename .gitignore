@@ -1,0 +1,112 @@
+# Analyst — repository ignore rules.
+#
+# This file must exist BEFORE `git init`. Without it, a first `git add .`
+# commits ~1.2 GB and, more seriously, `backend/data/analyst.db` — which holds
+# every question asked, every answer, and every source DSN. Git history is
+# forever; there is no cleanly removing that later.
+
+# --- data: never committed -------------------------------------------------
+# The SQLite store (answers, definitions, sources and their connection strings)
+backend/data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Warehouses are never committed — not yours, and not ours.
+#
+# A sample warehouse used to live in the tree. It was a slice of a third-party
+# public dataset with no licence we could establish, which made it unshippable,
+# and it made "try the sample" the default path when "point it at your own data"
+# is the product. It is now generated on demand by
+# ./scripts/setup-sample-data.sh from CSVs in backend/internal/fixture/testdata,
+# which ARE committed: they are ours, they are text, and a reviewer can read the
+# numbers the conformance suite is scored against.
+*.duckdb
+sample/
+
+# Local scratch from before the sample was generated: a ~1 GB third-party
+# dataset and a Python venv. Neither is part of the project any more; these
+# lines exist so a stale working copy cannot accidentally commit a gigabyte.
+thelook/
+
+# --- secrets ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+
+# --- Go --------------------------------------------------------------------
+bin/
+dist/
+# Compiled binaries dropped at package roots. `backend/probe` is 53 MB and was
+# sitting in the tree; a stray binary is the classic accidental first commit.
+backend/probe
+backend/server
+backend/cmd/server/server
+*.test
+*.out
+coverage.txt
+
+# --- Node / Next -----------------------------------------------------------
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+.eslintcache
+
+# --- Python ----------------------------------------------------------------
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# --- internal working documents --------------------------------------------
+# Kept locally, never published. The test for this section is simple: would a
+# stranger reading it learn something about the PRODUCT, or about how we work
+# and what we think of competitors?
+
+# Readiness audits, plans, backlogs and the security review. These quote the
+# author's absolute paths as evidence and describe findings in exploit detail;
+# security-review.md in particular is a how-to until every fix has shipped.
+# Their conclusions live in LICENSE, README, CONTRIBUTING, SECURITY and
+# ARCHITECTURE instead.
+docs/oss/
+
+# QA logs and their screenshots (2.2 MB). Dated internal sweeps — "BUG-04 ✅",
+# "fix pass 2026-07-29" — that read as a work journal, not documentation.
+docs/qa/
+
+# A demo script whose numbers were measured against one specific database on
+# one specific day. It goes stale silently, and a stale number in a trust
+# product is worse than none.
+docs/demo.md
+
+# Competitive and strategic analysis: named competitor teardowns, market
+# positioning, "where we can lead". Engineering conclusions from it already
+# live in charting.md and data-viz.md, which ARE published. Same reasoning as
+# product-research.md, which was moved out of the tree entirely.
+docs/design/charting-roadmap.md
+
+# The repository's previous README, kept when the product one was written. It
+# still opens "# data-lab" and documents a venv/ layout — and it describes a
+# dataset this project no longer uses at all (see NOTICE, "Bundled data").
+docs/thelook-dataset.md
+
+# --- tooling / logs --------------------------------------------------------
+*.log
+.playwright-mcp/
+playwright-report/
+test-results/
+.claude/
+
+# --- editor / OS -----------------------------------------------------------
+.DS_Store
+.idea/
+.vscode/
+*.swp

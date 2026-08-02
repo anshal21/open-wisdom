@@ -1,0 +1,75 @@
+name: A sealed answer was wrong
+description: Analyst returned a number with a confidence seal, and the number was wrong.
+labels: [bug, seal]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This has its own template because it is the report that matters most.
+        The product's entire claim is that a seal means something; a wrong
+        `verified` is the most serious bug this project can have, and we would
+        rather hear about it than not.
+
+        **A wrong `contested` or `qualified` is also worth filing.** Those states
+        are supposed to be the honest ones — if the system flagged a number that
+        was actually fine, the checks are producing noise, and noise is how
+        people learn to ignore a seal.
+
+  - type: dropdown
+    id: seal
+    attributes:
+      label: What seal did it carry?
+      options:
+        - verified — and the number was wrong
+        - qualified — and the number was fine, or wrong in a way the caveat did not describe
+        - contested — but the number was actually correct
+        - refused — but the question had only one reasonable reading
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: The question you asked
+    validations:
+      required: true
+
+  - type: textarea
+    id: numbers
+    attributes:
+      label: What it answered, and what the correct value is
+      description: And how you established the correct value.
+    validations:
+      required: true
+
+  - type: textarea
+    id: sql
+    attributes:
+      label: Both derivations
+      description: >
+        The Provenance tab shows the primary query and the independent
+        re-derivation. Both are useful — where they diverge is usually the bug.
+      render: sql
+    validations:
+      required: true
+
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Model provider
+      options:
+        - mock
+        - claude-cli
+        - anthropic
+        - other (say which above)
+    validations:
+      required: true
+
+  - type: textarea
+    id: shape
+    attributes:
+      label: Anything unusual about the data
+      description: >
+        Time zones, currencies, soft-deleted rows, a join that fans out, nulls
+        where you would not expect them. These are where the checks have their
+        blind spots and it helps to know which one we are looking at.
