@@ -145,7 +145,8 @@ in the UI under **Sources**, or start the server with
 | Connector | Status |
 |---|---|
 | **DuckDB** | Ships today — local files, read-only |
-| Postgres, Snowflake, BigQuery, … | The `warehouse.Connector` interface and its conformance suite exist; implementations are [where contributions land first](CONTRIBUTING.md) |
+| **Snowflake** | Experimental — read-only, stage access blocked, metered-aware. Guard behaviour is unit-tested offline; the live conformance suite runs wherever `ANALYST_TEST_SNOWFLAKE_DSN` points at an account, and it has not yet been scored against one |
+| Postgres, BigQuery, … | The `warehouse.Connector` interface and its conformance suite exist; implementations are [where contributions land first](CONTRIBUTING.md) |
 
 ### The sample warehouse
 

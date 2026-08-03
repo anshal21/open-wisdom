@@ -55,13 +55,16 @@ jobs:
         # files hardcoded an absolute path and skipped when it was missing, so
         # `go test ./...` was green on every machine but one.
         #
-        # Exactly one skip is allowed, and it must say so out loud:
+        # Exactly two skip classes are allowed, and each must say so out loud:
         # [needs-real-provider] marks a test asserting MODEL JUDGEMENT (does the
         # narrative name its definition? does alias detection find split
-        # entities?). The deterministic mock cannot satisfy those by
-        # construction, and CI must not spend money to find out. Model quality
-        # is measured by the conformance suite instead, where the score is the
-        # point. Every other skip fails the build.
+        # entities?) — the deterministic mock cannot satisfy those by
+        # construction, and CI must not spend money to find out.
+        # [needs-live-warehouse] marks a connector conformance suite whose
+        # subject is an external engine (Snowflake) that CI has no account
+        # for; the suite runs wherever credentials are provided, and the PR
+        # template asks for the pasted report. Every other skip fails the
+        # build.
         # In `go test -v` output the skip reason is logged BEFORE the
         # `--- SKIP` line, inside the test's `=== RUN` block:
         #
@@ -79,7 +82,7 @@ jobs:
         run: |
           unexplained=$(awk '
             /^=== RUN/              { marked = 0 }
-            /needs-real-provider/   { marked = 1 }
+            /needs-real-provider|needs-live-warehouse/ { marked = 1 }
             /^[[:space:]]*--- SKIP/ { if (!marked) print }
           ' /tmp/go-test.log)
           if [ -n "$unexplained" ]; then
