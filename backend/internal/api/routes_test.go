@@ -492,8 +492,13 @@ func TestSourceRoutes(t *testing.T) {
 	})
 
 	t.Run("an unregistered kind is refused at creation", func(t *testing.T) {
+		// The example kind must be one that will NEVER register. This test
+		// used "snowflake" as its stand-in for an unknown engine — and then
+		// the Snowflake connector shipped, quietly changing this from "refuse
+		// the unknown" to "refuse a real engine" and failing. A fictional
+		// kind cannot be promoted out from under the assertion.
 		res := f.do(http.MethodPost, "/api/v1/sources", map[string]string{
-			"name": "warehouse-in-the-sky", "kind": "snowflake", "dsn": "account.region",
+			"name": "warehouse-in-the-sky", "kind": "not-a-real-engine", "dsn": "account.region",
 		}).expect(http.StatusBadRequest)
 		if res.errorCode() != "unsupported_kind" {
 			t.Fatalf("code = %s; an engine this build cannot open must not be storable", res.errorCode())

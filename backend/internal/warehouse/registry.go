@@ -145,17 +145,28 @@ func RedactDSN(dsn string) string {
 	out := dsn
 
 	// scheme://user:password@host -> scheme://user:***@host
+	// user:password@host        -> user:***@host        (gosnowflake shape)
+	//
+	// The scheme-less form matters: Snowflake DSNs carry credentials with no
+	// scheme at all, and this function once looked only for "://" — so a
+	// literal password in a Snowflake DSN survived redaction into logs and
+	// error bodies. Caught by the connector's own tests before it shipped.
 	//
 	// A ${VAR} in the password position is left alone: it names a secret
 	// without being one, and it is the single most useful thing in the string
 	// when someone is debugging why a source will not connect.
+	credStart := 0
 	if i := strings.Index(out, "://"); i >= 0 {
-		rest := out[i+3:]
-		if at := strings.LastIndex(rest, "@"); at > 0 {
-			cred := rest[:at]
+		credStart = i + 3
+	}
+	rest := out[credStart:]
+	if at := strings.LastIndex(rest, "@"); at > 0 {
+		cred := rest[:at]
+		// Only a plausible credential block: no '/' (a path) and no space.
+		if !strings.ContainsAny(cred, "/ ") {
 			if c := strings.Index(cred, ":"); c >= 0 && !envRef.MatchString(cred[c+1:]) {
 				masked := cred[:c+1] + "***"
-				out = out[:i+3] + masked + rest[at:]
+				out = out[:credStart] + masked + rest[at:]
 			}
 		}
 	}

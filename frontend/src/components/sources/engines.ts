@@ -75,6 +75,75 @@ const KNOWN: Engine[] = [
     toDSN: (v) => (v.path ?? "").trim(),
   },
   {
+    id: "snowflake",
+    label: "Snowflake",
+    monogram: "SF",
+    fields: [
+      NAME_FIELD,
+      {
+        name: "account",
+        label: "Account identifier",
+        placeholder: "xy12345.eu-west-1",
+      },
+      {
+        name: "user",
+        label: "User",
+        placeholder: "ANALYST_RO",
+        hint: "A read-only role is strongly recommended — Analyst only ever issues reads, and verification runs every query twice on a metered engine.",
+      },
+      {
+        name: "password",
+        label: "Password",
+        placeholder: "${SNOWFLAKE_PASSWORD}",
+        hint: "Write ${VAR} to reference a server-side environment variable. The reference is stored; the secret never is.",
+        secret: true,
+      },
+      {
+        name: "database",
+        label: "Database",
+        placeholder: "ANALYTICS",
+      },
+      {
+        name: "schema",
+        label: "Schema",
+        placeholder: "PUBLIC",
+      },
+      {
+        name: "warehouse",
+        label: "Warehouse",
+        placeholder: "QUERY_WH",
+      },
+      {
+        name: "role",
+        label: "Role",
+        placeholder: "ANALYST_RO",
+      },
+    ],
+    // gosnowflake DSN: user:password@account/database/schema?warehouse=&role=
+    toDSN: (v) => {
+      const user = encodeURIComponent((v.user ?? "").trim());
+      const rawPass = (v.password ?? "").trim();
+      // A ${VAR} reference must survive verbatim — the server resolves it at
+      // connect time. A literal password gets percent-encoded so ':' or '@'
+      // inside it cannot restructure the DSN.
+      const pass = /^\$\{[A-Za-z_][A-Za-z0-9_]*\}$/.test(rawPass)
+        ? rawPass
+        : encodeURIComponent(rawPass);
+      const cred = pass ? `${user}:${pass}` : user;
+      let dsn = `${cred}@${(v.account ?? "").trim()}`;
+      const db = (v.database ?? "").trim();
+      const schema = (v.schema ?? "").trim();
+      if (db) dsn += `/${db}${schema ? `/${schema}` : ""}`;
+      const params = new URLSearchParams();
+      const wh = (v.warehouse ?? "").trim();
+      const role = (v.role ?? "").trim();
+      if (wh) params.set("warehouse", wh);
+      if (role) params.set("role", role);
+      const qs = params.toString();
+      return qs ? `${dsn}?${qs}` : dsn;
+    },
+  },
+  {
     id: "postgres",
     label: "Postgres",
     monogram: "PG",
