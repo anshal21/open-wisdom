@@ -62,10 +62,26 @@ jobs:
         # construction, and CI must not spend money to find out. Model quality
         # is measured by the conformance suite instead, where the score is the
         # point. Every other skip fails the build.
+        # In `go test -v` output the skip reason is logged BEFORE the
+        # `--- SKIP` line, inside the test's `=== RUN` block:
+        #
+        #   === RUN   TestX
+        #       x_test.go:105: [needs-real-provider] ...
+        #   --- SKIP: TestX (0.00s)
+        #
+        # So a skip is judged by whether the marker appeared anywhere in its
+        # own block. The previous pipeline (grep -A1 | grep -v | grep) judged
+        # by the FOLLOWING line — which is the next test's `=== RUN` — so a
+        # correctly marked skip still failed the gate. It was only ever green
+        # on machines with zero skips, and the first CI run (the first machine
+        # without a real provider) proved it. This version was validated
+        # against the real log, not a remembered shape of one.
         run: |
-          unexplained=$(grep -E '^\s*--- SKIP' -A1 /tmp/go-test.log \
-            | grep -v 'needs-real-provider' \
-            | grep -E '^\s*--- SKIP' || true)
+          unexplained=$(awk '
+            /^=== RUN/              { marked = 0 }
+            /needs-real-provider/   { marked = 1 }
+            /^[[:space:]]*--- SKIP/ { if (!marked) print }
+          ' /tmp/go-test.log)
           if [ -n "$unexplained" ]; then
             echo "$unexplained"
             echo "::error::Tests were skipped without the [needs-real-provider] marker. A skip means the suite did not run — fix the fixture or the environment."
@@ -151,7 +167,10 @@ jobs:
             echo "::error::A database file is tracked. The store holds every question asked and every source DSN."
             exit 1
           fi
-          if git ls-files | grep -E '(^|/)\.env($|\.)' ; then
+          # .env.example is the one deliberate exception: it documents the two
+          # env vars and holds no secrets, and the root .gitignore re-includes
+          # it by name. Everything else .env-shaped fails the build.
+          if git ls-files | grep -E '(^|/)\.env($|\.)' | grep -v '\.env\.example$'; then
             echo "::error::An .env file is tracked."
             exit 1
           fi

@@ -339,7 +339,12 @@ func TestResolvedCandidateAnswersWithoutReAsking(t *testing.T) {
 	h := newHarness(t)
 	refused, rec, _ := h.ask(t, Request{Question: "what was revenue in 2023?"})
 	if refused.Confidence != verify.ConfRefused {
-		t.Skipf("question was not refused this run (confidence %q); nothing to resolve", refused.Confidence)
+		// The precondition — a refusal — is model judgement: the mock provider
+		// never invents ambiguity BY DESIGN, so under the mock this skip fires
+		// on every run. That makes it a needs-real-provider skip in effect,
+		// and it must say so, or CI (which has no real provider) reads it as
+		// a suite that silently stopped running.
+		t.Skipf("[needs-real-provider] question was not refused this run (confidence %q); a refusal is model judgement the mock never produces", refused.Confidence)
 	}
 	var amb store.Ambiguity
 	if !rec.first(t, EventAmbiguity, &amb) {
