@@ -129,6 +129,10 @@ export interface ResolveRequest {
   ratify: boolean;
   definition_name?: string;
   plain_english?: string;
+  /** Continue under a definition that already exists (the ratify sheet
+   * creates it first, since it owns scope and precedence). Mutually
+   * exclusive with ratify — that one asks the server to create. */
+  definition_id?: string;
 }
 
 export type StageName =

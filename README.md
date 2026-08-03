@@ -2,23 +2,33 @@
 
 **Ask a question in plain English. Get a number that shows its work.**
 
-Analyst answers questions against your data warehouse — and then tries to prove
-itself wrong. Every answer is re-derived a second time by an independent query,
-checked for the specific ways SQL quietly lies (fan-out from a join, rows
-silently dropped, periods of unequal length, filters that match nothing), and
-stamped with what that scrutiny found.
+[![CI](https://github.com/anshal21/open-wisdom/actions/workflows/ci.yml/badge.svg)](https://github.com/anshal21/open-wisdom/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Go](https://img.shields.io/badge/backend-Go-00ADD8?logo=go&logoColor=white)](backend/)
+[![TypeScript](https://img.shields.io/badge/frontend-Next.js-black?logo=next.js)](frontend/)
+[![No telemetry](https://img.shields.io/badge/telemetry-none-brightgreen.svg)](#security-posture)
 
-The output is not a chat message. It is a durable record with a permalink, the
-SQL that produced it, the checks that ran, and a seal you can argue with.
+An open-source, self-hosted AI data analyst — the kind of tool Wisdom AI and
+ThoughtSpot Sage sell as a service, and Hex sells as part of a notebook
+platform — with one difference that runs through everything: **it tries to
+prove itself wrong before it answers you.**
 
-```
-$4,351,367   ✓ VERIFIED · 6 of 6 checks
-             Independently re-derived and structurally checked.
-```
+Every answer is re-derived a second time by an independent query, checked for
+the specific ways SQL quietly lies (fan-out from a join, rows silently
+dropped, periods of unequal length, filters that match nothing), and stamped
+with what that scrutiny found. The output is not a chat message — it is a
+durable record with a permalink, the SQL that produced it, the checks that
+ran, and a seal you can argue with.
 
-<sub>A real answer to "what was total revenue in 2023?", not a mock-up. Six
-checks, because four of the ten did not apply to that query — skipped checks
-never pad the denominator.</sub>
+![Ask an ambiguous question: Analyst refuses, shows both defensible figures, and verifies the answer only after you ratify what "revenue" means.](docs/assets/ask-refuse-verify.gif)
+
+<sub>Real recording, real data, real model ([crisp mp4](docs/assets/ask-refuse-verify.mp4)).
+"Revenue" has two defensible readings in this warehouse — $305,593 net or
+$359,761 gross — so instead of guessing, Analyst shows both figures and asks.
+Your choice becomes a ratified definition, and only then does the answer earn
+its **VERIFIED** seal: independently re-derived by a different query route,
+eight structural checks passed. The model-thinking pauses are sped up 8×;
+nothing else is edited.</sub>
 
 ---
 
@@ -41,7 +51,16 @@ know.** Four states, and only one of them means "trust this":
 A question with more than one defensible reading is **refused** rather than
 guessed: you are shown the candidate interpretations, their differing figures,
 and asked which you meant. Choosing once turns that into a ratified definition
-the whole workspace reuses.
+the whole workspace reuses — the next question that touches "revenue" applies
+it silently and says so in its checks:
+
+![After ratifying "revenue" once, a monthly-trend question verifies against the same definition automatically.](docs/assets/definition-compounds.gif)
+
+And a seal is never something you have to take on faith. Every answer keeps
+its evidence: the checks that ran, both SQL derivations side by side, what the
+run cost, and how long it took:
+
+![Opening an answer from the ledger: the checks, both derivations, model calls and cost.](docs/assets/evidence.gif)
 
 ### How well does that actually work?
 
@@ -95,7 +114,7 @@ default, and it is enough to develop against.
 Point it at a DuckDB file you already have:
 
 ```bash
-git clone <this-repo> && cd analyst
+git clone https://github.com/anshal21/open-wisdom.git && cd open-wisdom
 ANALYST_DATA_DIR=~/warehouses ANALYST_WAREHOUSE_FILE=sales.duckdb docker compose up
 ```
 
@@ -243,8 +262,45 @@ Four modules, each with one job:
 Answers, definitions, dashboards and notebooks live in one SQLite file, so a
 whole workspace is a single portable artifact.
 
+It is a workspace, not a chat: a verified answer becomes a dashboard tile that
+keeps its seal, and notebook cells run through the same pipeline — every
+figure in a notebook carries the same checks as an answer:
+
+![A verified answer becomes a dashboard tile with its seal, and a notebook question-cell runs through the full verification pipeline.](docs/assets/workspace.gif)
+
 Deeper reading: [ARCHITECTURE.md](ARCHITECTURE.md) ·
 [docs/design/](docs/design/) · [docs/api-contract.md](docs/api-contract.md)
+
+---
+
+## How it compares
+
+Honest version, because the audience for this product is people who check
+claims.
+
+**Wisdom AI** and **ThoughtSpot Sage** are hosted
+AI analysts: polished, enterprise-integrated, closed. You cannot read how they
+decide an answer is trustworthy, run them on your own hardware, or grep their
+verification logic. Analyst is the self-hosted, Apache-2.0 counterpart — the
+verification engine is ~1,700 lines of commented Go you can audit, and the
+seal's meaning is deliberately **not** extensible, so it means the same thing
+in every installation.
+
+**Hex** is a notebook platform with an AI assist — a bigger product than this
+in most directions (collaboration, scheduling, app-building, breadth of
+connectors). The overlap is the "ask your data" loop, and there the difference
+is philosophy: Hex's assistant helps you write analysis; Analyst's pipeline
+produces answers that must survive an independent re-derivation before they
+are called verified.
+
+What they have that Analyst does not, today: maturity, teams and permissions,
+warehouse connectors beyond DuckDB (the connector interface and its
+conformance suite exist — implementations are where contributions land
+first), and someone you can pay when it breaks.
+
+What Analyst has that they do not: a published accuracy number you can
+reproduce, a refusal path for ambiguous questions, zero telemetry, and the
+entire trust mechanism in the open.
 
 ---
 

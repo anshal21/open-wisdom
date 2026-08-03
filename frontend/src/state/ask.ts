@@ -237,6 +237,7 @@ interface AskState {
     ratify: boolean,
     definitionName?: string,
     plainEnglish?: string,
+    definitionId?: string,
   ) => Promise<void>;
   editChip: (turnId: string, chipId: string, value: string) => Promise<void>;
   removeChip: (turnId: string, chipId: string) => Promise<void>;
@@ -417,7 +418,7 @@ export const useAsk = create<AskState>((set, get) => ({
     }
   },
 
-  resolveCandidate: async (turnId, candidateId, ratify, definitionName, plainEnglish) => {
+  resolveCandidate: async (turnId, candidateId, ratify, definitionName, plainEnglish, definitionId) => {
     const turn = get().turns.find((t) => t.id === turnId);
     if (!turn?.ambiguity) return;
     const candidate = turn.ambiguity.candidates.find((c) => c.id === candidateId);
@@ -452,8 +453,12 @@ export const useAsk = create<AskState>((set, get) => ({
 
     // When the RatifySheet ran first, the definition already exists — it
     // created it with the human's plain English. Asking the backend to ratify
-    // again would mint a duplicate. Only this call ratifies when it is the one
-    // carrying the definition's content.
+    // again would mint a duplicate, so that path sends the definition's id
+    // instead: the continued answer is then CREDITED with the ratified
+    // definition rather than warning "chosen ad hoc" — which is what happened
+    // when this sent ratify:false and nothing else, and the answer born from
+    // a ratification sealed qualified. Only this call ratifies when it is the
+    // one carrying the definition's content.
     const wireRatify = ratify && Boolean(plainEnglish);
 
     try {
@@ -464,6 +469,7 @@ export const useAsk = create<AskState>((set, get) => ({
           ratify: wireRatify,
           definition_name: wireRatify ? definitionName : undefined,
           plain_english: wireRatify ? plainEnglish : undefined,
+          definition_id: !wireRatify ? definitionId : undefined,
         },
         abort.signal,
       )) {

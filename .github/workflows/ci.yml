@@ -2,7 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    # Both spellings: the repo's default branch is master, and a workflow
+    # gating on the wrong name means CI silently never runs on the branch
+    # everyone reads the badge for — which is exactly what happened.
+    branches: [master, main]
   pull_request:
 
 # A PR should never be able to make the tree less publishable than it was.

@@ -1,0 +1,12 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/anshal21/open-wisdom/security/advisories/new
+    about: >
+      Do not open a public issue. Report privately — see SECURITY.md for scope
+      and what to expect.
+  - name: Question or idea
+    url: https://github.com/anshal21/open-wisdom/discussions
+    about: >
+      For "how do I", "should this work like X", or proposing a direction before
+      writing code. A connector or provider is worth discussing first.

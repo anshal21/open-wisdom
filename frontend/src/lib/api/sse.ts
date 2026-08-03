@@ -50,18 +50,30 @@ function parseFrame(raw: string): { event: string; data: string } | null {
   return { event, data: data.join("\n") };
 }
 
-const ASK_EVENTS = new Set<string>([
-  "stage",
-  "interpretation",
-  "ambiguity",
-  "result",
-  "check",
-  "verdict",
-  "narrative",
-  "chart",
-  "cost",
-  "error",
-]);
+// Keyed by AskEventName so the COMPILER keeps this in sync with the type.
+//
+// This was a hand-maintained Set<string> that omitted "thread" — the first
+// frame of every stream, the one carrying the thread id. The drop was silent
+// (unknown events are skipped by design), the state's threadId stayed null,
+// and POST /ask/resolve went out with thread_id:"" and 400'd: every
+// "Use & ratify" click against a live backend failed while the mock transport,
+// whose resolve never validates the thread, sailed through. A record type
+// makes a missing or extra key a compile error instead of a runtime silence.
+const ASK_EVENT_NAMES: Record<AskEventName, true> = {
+  thread: true,
+  stage: true,
+  interpretation: true,
+  ambiguity: true,
+  result: true,
+  check: true,
+  verdict: true,
+  narrative: true,
+  chart: true,
+  cost: true,
+  error: true,
+};
+
+const ASK_EVENTS = new Set<string>(Object.keys(ASK_EVENT_NAMES));
 
 export function toAskEvent(frame: { event: string; data: string }): AskEvent | null {
   if (!ASK_EVENTS.has(frame.event)) return null;

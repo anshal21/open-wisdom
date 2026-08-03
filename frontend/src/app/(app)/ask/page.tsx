@@ -486,11 +486,18 @@ function AskSurface() {
         plainEnglish={ratify.plainEnglish}
         expression={ratify.expression}
         sourceAnswerId={undefined}
-        onRatified={(name) => {
+        onRatified={(name, definitionId) => {
           setRatify({ open: false });
           toast({ kind: "success", message: `${name} ratified` });
           if (ratify.turnId && ratify.candidateId)
-            void resolveCandidate(ratify.turnId, ratify.candidateId, true, name);
+            void resolveCandidate(
+              ratify.turnId,
+              ratify.candidateId,
+              true,
+              name,
+              undefined,
+              definitionId,
+            );
         }}
       />
     </>

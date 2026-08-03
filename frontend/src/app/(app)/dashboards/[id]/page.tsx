@@ -5,8 +5,10 @@ import { Check, LayoutGrid, Link2, Plus, RotateCw, Undo2, X } from "lucide-react
 import { cn } from "@/lib/cn";
 import { formatRelative, isoTitle } from "@/lib/format";
 import type { Answer, Dashboard, DashboardTile } from "@/lib/api/types";
+import { useRouter } from "next/navigation";
 import {
   ApiFailure,
+  createDashboard,
   getAnswer,
   getDashboard,
   patchTileViz,
@@ -98,6 +100,11 @@ export default function DashboardDetailPage({
   }, []);
 
   const [attempt, setAttempt] = React.useState(0);
+  const router = useRouter();
+  // Serialises draft promotion: the first commit on /dashboards/new creates
+  // the real dashboard; a second commit racing it must reuse the same promise
+  // or two dashboards get minted.
+  const creatingRef = React.useRef<Promise<Dashboard> | null>(null);
 
   React.useEffect(() => {
     let alive = true;
@@ -157,32 +164,53 @@ export default function DashboardDetailPage({
 
   /**
    * Every tile mutation goes through here, and everything that lands here is
-   * persisted. Previously `commit` only touched React state, so adds, removes
-   * and replaces looked applied, survived "Done", and were gone on reload.
+   * persisted — INCLUDING on /dashboards/new. That route used to early-return
+   * before the sync, one line under this comment, so the first dashboard a
+   * user ever made rendered its tiles and saved none of them: the picker
+   * closed, the tile appeared, zero requests left the page, and navigating
+   * away destroyed the board. The draft is now promoted on first commit —
+   * create, sync against the real id, then swap the route — the same
+   * first-write promotion the notebook draft already does.
    */
   const commit = React.useCallback(
     (next: DashboardTile[]) => {
       if (next === tiles) return;
       pushHistory();
       setTiles(next);
-      if (id === "new") return;
-      void syncTiles(id, knownRef.current, next).then(({ tiles: settled, failed }) => {
-        knownRef.current = settled;
-        // Adopt server ids without clobbering edits made while in flight.
-        setTiles((cur) =>
-          cur.length === settled.length
-            ? cur.map((t, i) => (t.id ? t : { ...t, id: settled[i]?.id }))
-            : cur,
-        );
-        if (failed) {
-          toast({
-            kind: "error",
-            message: "Some changes to this dashboard could not be saved.",
+      const write = (dashId: string) =>
+        syncTiles(dashId, knownRef.current, next).then(({ tiles: settled, failed }) => {
+          knownRef.current = settled;
+          // Adopt server ids without clobbering edits made while in flight.
+          setTiles((cur) =>
+            cur.length === settled.length
+              ? cur.map((t, i) => (t.id ? t : { ...t, id: settled[i]?.id }))
+              : cur,
+          );
+          if (failed) {
+            toast({
+              kind: "error",
+              message: "Some changes to this dashboard could not be saved.",
+            });
+          }
+          return dashId;
+        });
+      if (id === "new") {
+        creatingRef.current ??= createDashboard(dashboard?.name ?? "Untitled dashboard");
+        void creatingRef.current
+          .then((d) => write(d.id))
+          .then((dashId) => router.replace(`/dashboards/${dashId}`))
+          .catch(() => {
+            creatingRef.current = null;
+            toast({
+              kind: "error",
+              message: "This dashboard could not be created — nothing was saved.",
+            });
           });
-        }
-      });
+        return;
+      }
+      void write(id);
     },
-    [tiles, pushHistory, id, toast],
+    [tiles, pushHistory, id, toast, dashboard?.name, router],
   );
 
   // Undo is just another next-state, so it reconciles like any other edit —

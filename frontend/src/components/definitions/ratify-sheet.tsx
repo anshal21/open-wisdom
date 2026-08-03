@@ -33,7 +33,10 @@ export interface RatifySheetProps {
   expression?: string;
   definitionId?: string; // when editing/versioning an existing definition
   sourceAnswerId?: string;
-  onRatified?: (name: string) => void;
+  /** The id is the definition the submit created or updated — callers that
+   * continue a refused ask thread pass it to resolve so the answer is
+   * credited with the definition instead of warning "chosen ad hoc". */
+  onRatified?: (name: string, definitionId: string) => void;
 }
 
 type Scope = "workspace" | "personal";
@@ -163,12 +166,13 @@ function RatifySheetForm({
       rerun_affected: rerun,
     };
     try {
-      if (definitionId) await updateDefinition(definitionId, body);
-      else await ratifyDefinition(body);
+      const saved = definitionId
+        ? await updateDefinition(definitionId, body)
+        : await ratifyDefinition(body);
 
       const version = currentVersion !== null ? currentVersion + 1 : 1;
       const affected = resolvedImpact?.affected_answers ?? 0;
-      onRatified?.(trimmedName);
+      onRatified?.(trimmedName, saved.id);
       onClose();
       toast({
         kind: "success",

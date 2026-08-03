@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/anshal21/ai-analyst/backend/internal/store"
 	"github.com/anshal21/ai-analyst/backend/internal/verify"
 )
 
@@ -242,6 +243,88 @@ func TestAskResolveRatifiesADefinition(t *testing.T) {
 	if !found {
 		t.Fatal("the ratified definition was not created")
 	}
+}
+
+// TestAskResolveWithExistingDefinition covers the ratify-sheet flow: the client
+// creates the definition FIRST (it owns scope and precedence, which resolve
+// does not carry) and then resolves referencing it by id.
+//
+// Before definition_id existed, that flow had to send ratify:false and the
+// answer born from a ratification was checked as "no ratified definition
+// covers this question" — sealed qualified in the same breath as the user
+// ratifying. The check that exists to credit the decision punished it.
+func TestAskResolveWithExistingDefinition(t *testing.T) {
+	f := newFixture(t)
+	refused := f.seedRefusedAnswer("what was revenue")
+	th := f.seedThread("what was revenue", refused.ID)
+
+	def := &store.Definition{
+		Name:         "Revenue",
+		PlainEnglish: "Sum of sale price, excluding cancelled and returned items.",
+		Expression:   "SELECT SUM(sale_price) FROM order_items WHERE status NOT IN ('Cancelled','Returned')",
+		Status:       store.DefRatified,
+	}
+	if err := f.Defs.Create(t.Context(), def); err != nil {
+		t.Fatalf("seed definition: %v", err)
+	}
+
+	t.Run("continues under the referenced definition without minting another", func(t *testing.T) {
+		before, _ := f.Defs.List(t.Context(), "")
+		events := f.stream("/api/v1/ask/resolve", map[string]any{
+			"thread_id":     th.ID,
+			"candidate_id":  "cand_gross",
+			"ratify":        false,
+			"definition_id": def.ID,
+		})
+		if len(events) == 0 {
+			t.Fatal("resolve produced no events")
+		}
+		after, _ := f.Defs.List(t.Context(), "")
+		if len(after) != len(before) {
+			t.Fatalf("definitions %d -> %d: resolving with definition_id must not create one", len(before), len(after))
+		}
+	})
+
+	t.Run("rejects a dangling id", func(t *testing.T) {
+		f.do(http.MethodPost, "/api/v1/ask/resolve", map[string]any{
+			"thread_id":     th.ID,
+			"candidate_id":  "cand_gross",
+			"definition_id": "def_does_not_exist",
+		}).expect(http.StatusNotFound)
+	})
+
+	t.Run("rejects a definition that is not ratified", func(t *testing.T) {
+		proposed := &store.Definition{
+			Name:         "Draft revenue",
+			PlainEnglish: "x",
+			Expression:   "SELECT 1",
+			Status:       store.DefProposed,
+		}
+		if err := f.Defs.Create(t.Context(), proposed); err != nil {
+			t.Fatalf("seed proposed definition: %v", err)
+		}
+		res := f.do(http.MethodPost, "/api/v1/ask/resolve", map[string]any{
+			"thread_id":     th.ID,
+			"candidate_id":  "cand_gross",
+			"definition_id": proposed.ID,
+		}).expect(http.StatusBadRequest)
+		if res.errorCode() != "definition_not_ratified" {
+			t.Fatalf("code = %s", res.errorCode())
+		}
+	})
+
+	t.Run("rejects ratify combined with definition_id", func(t *testing.T) {
+		res := f.do(http.MethodPost, "/api/v1/ask/resolve", map[string]any{
+			"thread_id":     th.ID,
+			"candidate_id":  "cand_gross",
+			"ratify":        true,
+			"plain_english": "x",
+			"definition_id": def.ID,
+		}).expect(http.StatusBadRequest)
+		if res.errorCode() != "invalid_request" {
+			t.Fatalf("code = %s", res.errorCode())
+		}
+	})
 }
 
 func TestInvestigationValidation(t *testing.T) {

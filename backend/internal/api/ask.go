@@ -40,7 +40,16 @@ type resolveRequest struct {
 	Ratify         bool   `json:"ratify"`
 	DefinitionName string `json:"definition_name"`
 	PlainEnglish   string `json:"plain_english"`
-	SourceID       string `json:"source_id"`
+	// DefinitionID continues the answer under a definition that ALREADY exists
+	// — the client created it (POST /definitions) before resolving, which is
+	// what the ratify sheet does since it owns scope and precedence, fields
+	// this endpoint does not carry. Without this field the client faced a
+	// choice between double-creating the definition (ratify:true) and losing
+	// the credit (ratify:false) — and chose losing the credit, so the answer
+	// born from a ratification warned "no ratified definition covers this
+	// question" and sealed qualified. Mutually exclusive with Ratify.
+	DefinitionID string `json:"definition_id"`
+	SourceID     string `json:"source_id"`
 }
 
 // postAskResolve continues a refused question with the reading the user chose.
@@ -63,7 +72,29 @@ func (s *Server) postAskResolve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.Ratify && req.DefinitionID != "" {
+		writeError(w, http.StatusBadRequest, "invalid_request",
+			"ratify and definition_id are mutually exclusive: ratify creates a definition, definition_id references one that already exists.")
+		return
+	}
+
 	var resolveCtx *store.Context
+	if req.DefinitionID != "" {
+		// Client-supplied id, so verify it: the answer will permanently record
+		// "used ratified definition X", and that claim must not be forgeable
+		// with an id that is dangling or merely proposed.
+		def, err := s.Defs.Get(r.Context(), req.DefinitionID)
+		if err != nil {
+			writeRepoError(w, err, "No definition with that id.")
+			return
+		}
+		if def.Status != store.DefRatified {
+			writeError(w, http.StatusBadRequest, "definition_not_ratified",
+				"The referenced definition is not ratified; only a ratified definition can back an answer.")
+			return
+		}
+		resolveCtx = &store.Context{DefinitionID: def.ID}
+	}
 	if req.Ratify {
 		if req.PlainEnglish == "" {
 			writeError(w, http.StatusBadRequest, "plain_english_required",

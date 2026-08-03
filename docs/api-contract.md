@@ -86,6 +86,21 @@ Client rules: a candidate is marked RECOMMENDED only when
 ```
 Returns the same SSE stream as `/ask`, continuing with the chosen reading.
 
+Two ways to attach a definition, mutually exclusive:
+
+- `ratify: true` + `plain_english` (+ optional `definition_name`) — the server
+  creates and ratifies the definition, then continues under it.
+- `definition_id` — continue under a definition that **already exists** (the
+  ratify sheet creates it first via `POST /definitions`, because it carries
+  scope and precedence, which this endpoint does not). The id must reference a
+  ratified definition: a dangling id is 404, a non-ratified one is 400
+  `definition_not_ratified`, and sending both `ratify` and `definition_id` is
+  400 `invalid_request`.
+
+Either way, the continued answer's `definition_source` check credits the
+definition — an answer born from a ratification must never read "chosen ad
+hoc".
+
 ---
 
 ## 3. Threads and context

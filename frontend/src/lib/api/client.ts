@@ -550,6 +550,21 @@ export const getInvestigation = (id: string) =>
 export const getDashboards = () =>
   call<DashboardSummary[]>("/dashboards", () => DASHBOARD_SUMMARIES);
 
+/** Promote the /dashboards/new draft into a real dashboard. The draft page is
+ * pure client state until the first tile lands — this is the write that gives
+ * it a server id to reconcile against. */
+export const createDashboard = (name: string) =>
+  call<Dashboard>(
+    "/dashboards",
+    () => ({
+      id: `dash_${name.toLowerCase().replace(/\W+/g, "_")}`,
+      name,
+      tiles: [],
+      last_refreshed_at: null,
+    }),
+    { method: "POST", body: JSON.stringify({ name }) },
+  );
+
 export const getDashboard = (id: string) =>
   call<Dashboard>(`/dashboards/${id}`, () => {
     const d = DASHBOARDS.find((x) => x.id === id);
