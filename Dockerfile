@@ -22,7 +22,7 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 RUN npm run build
 
 # --- backend build ---------------------------------------------------------
-FROM golang:1.25-bookworm AS api
+FROM golang:1.27-bookworm AS api
 WORKDIR /src/backend
 # DuckDB is cgo with vendored natives.
 ENV CGO_ENABLED=1
